@@ -1,21 +1,7 @@
-# easymeeting-vue
+# READ ME
 
-> A Vue.js project
+## 启动方式
+npm install & npm start
 
-## Build Setup
-
-``` bash
-# install dependencies
-npm install
-
-# serve with hot reload at localhost:8080
-npm run dev
-
-# build for production with minification
-npm run build
-
-# build for production and view the bundle analyzer report
-npm run build --report
-```
-
-For detailed explanation on how things work, checkout the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
+## 代码结构
+api文件放在/routes文件夹下
