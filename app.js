@@ -15,8 +15,11 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 
 var account = require('./routes/account');
-app.use('/api/account', account);
+app.use('/api/user', account);
 
+
+var session = require('./routes/session');
+app.use('/api/session', session);
 // app.get('/', function(req,res,next){
 //     res.sendFile('public/welcome.html', { root: __dirname });
 // });
