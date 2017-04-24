@@ -2,27 +2,39 @@ var express = require('express');
 var app = express();
 var server = require('http').createServer(app);
 var SkyRTC = require('skyrtc').listen(server);
-
 var path = require('path');
 var port = process.env.PORT || 3000;
 server.listen(port);
 var request = require('request');
 var bodyParser = require('body-parser');	
 
+
+// 跨域访问
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+
+app.all('*',function (req, res, next) {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Content-Length, Authorization, Accept, X-Requested-With , PRIVATE-TOKEN');
+  res.header('Access-Control-Allow-Methods', 'PUT, POST, GET, DELETE, OPTIONS');
+
+  if (req.method == 'OPTIONS') {
+    res.send(200); /让options请求快速返回/
+  }
+  else {
+    next();
+  }
+});
 
 
 var account = require('./routes/account');
 app.use('/api/user', account);
 
-
 var session = require('./routes/session');
 app.use('/api/session', session);
-// app.get('/', function(req,res,next){
-//     res.sendFile('public/welcome.html', { root: __dirname });
-// });
+
+
 
 
 
