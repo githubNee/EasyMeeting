@@ -13,8 +13,9 @@ router.route('/')
 	user_model.getInfo(token ,function (result) {
 		if (result == null) 
 			res.sendStatus(404);
-		else
+		else {
 			res.send(result);
+		}
 	});
 })
 // 用户注册

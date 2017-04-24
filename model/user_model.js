@@ -38,12 +38,16 @@ function login(email, callback) {
 
 // 根据token获取用户信息
 function getInfo(token, callback) {
-	var sql = "select * from user_info where token=\'" + token + "\';";
+	var sql = "select * from user_info natural join user where token=\'" + token + "\';";
 	db.do_query(sql, function(result) {
 		if (result.length == 0) 
 			callback(null);
-		else 
-			callback(result[0]);
+		else {
+			result[0]['password'] = undefined;
+			var ret = {};
+			ret['user'] = result[0];
+			callback(ret);
+		}
 	});
 }
 
