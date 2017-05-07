@@ -2,3 +2,4 @@
 /.vscode
 npm-debug.log*
 test.js
+nohup.out

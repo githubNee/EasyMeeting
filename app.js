@@ -7,6 +7,8 @@ var port = process.env.PORT || 3000;
 server.listen(port);
 var request = require('request');
 var bodyParser = require('body-parser');	
+var https = require('https');
+var fs = require('fs');
 
 
 // 跨域访问
@@ -40,6 +42,17 @@ app.use('/api/userinfo', account_info);
 
 
 
+
+options = {
+        key: fs.readFileSync('./privatekey.pem'),
+        cert: fs.readFileSync('./certificate.pem')
+};
+https.createServer(options, app).listen(3001, function () {
+        console.log('Https server listening on port ' + 3001);
+});
+app.get('/webrtc', function(req, res, next) {
+        res.sendFile('public/test.html', {root: __dirname});
+});
 
 
 
