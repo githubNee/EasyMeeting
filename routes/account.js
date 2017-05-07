@@ -39,7 +39,41 @@ router.route('/')
 		});
 	}
 
+})
+// 更新用户
+.put(function(req, res, next) {
+	if (req.body['token'] == undefined || req.body['email'] == undefined || req.body['password'] == undefined || req.body['oldPassword'] == undefined)
+		res.sendStatus(400);
+	else {
+		user_model.getInfo(req.body['token'], function(result) {
+			if (result == null) 
+				res.sendStatus(404);
+			else {
+				user_model.checkPassword(req.body['token'], req.body['oldPassword'], function(result) {
+					if (result == 1) 
+						user_model.checkByToken(req.body['email'], req.body['token'], function(result) {
+							if (result == 1)
+								res.sendStatus(403);
+							else {
+								var token = token_helper.create(req.body['email'], req.body['password']);
+								user_model.updateUser(req.body['email'], req.body['password'], token, req.body['token'], function(result) {
+									user_model.getInfo(token, function(result) {
+										if (result == null) 
+											res.sendStatus(500);
+										else
+											res.send(result);
+									});
+								});
+							}				
+						});
+					else 
+						res.sendStatus(401);						
+				});
+			}
+		});
+	}
 });
+
 
 router.route('/exists')
 // 检测邮箱是否被注册

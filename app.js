@@ -34,6 +34,10 @@ app.use('/api/user', account);
 var session = require('./routes/session');
 app.use('/api/session', session);
 
+var account_info = require('./routes/account_info');
+app.use('/api/userinfo', account_info);
+
+
 
 
 
