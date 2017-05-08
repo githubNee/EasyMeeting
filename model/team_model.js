@@ -56,8 +56,25 @@ function getTeam(teamId, token, callback) {
 
 function addMember(teamId, memberId) {
 	var sql = 'insert into user_team values(null, ' + teamId + ', ' + memberId + ');';
-	console.log(sql);
-	// db.do_query(sql, function() {});
+	db.do_query(sql, function() {});
+}
+
+function checkMember (teamId, memberId, callback) {
+	var sql = 'select count(*) as number from user_team where team_id=' + teamId + ' and user_id=' + memberId + ';';
+	db.do_query(sql, function(result) {
+		callback(result[0]['number']);
+	});
+}
+
+function getMembers (teamId, callback) {
+	var sql = 'select * from user natural join user_info where user_id in (select user_id from user_team where team_id =' + teamId + ');';
+	db.do_query(sql, function(result) {
+		for (var index = 0; index < result.length; index++) {
+			result[index]['password'] = undefined;
+			result[index]['token'] = undefined;
+		}
+		callback(result);
+	})
 }
 
 var team_model = {
@@ -66,7 +83,9 @@ var team_model = {
 	checkTeam: checkTeam,
 	getTeam: getTeam,
 	getTeams: getTeams,
-	addMember: addMember
+	addMember: addMember,
+	checkMember: checkMember,
+	getMembers: getMembers
 }
 
 module.exports = team_model;

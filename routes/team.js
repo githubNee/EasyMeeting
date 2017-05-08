@@ -35,7 +35,7 @@ router.route('/')
 			if (result == null)
 				res.sendStatus(404);
 			else {
-				team['leader'] = result['user']['user_id'];
+				team['leader'] = result['user ']['user_id'];
 				team_model.insert(team);
 				res.sendStatus(200);
 			}
@@ -72,6 +72,31 @@ router.route('/:id')
 
 
 router.route('/:id/member')
+.get(function(req, res, next) {
+	var teamId = req.params.id,
+		token = req.query['token'];
+	user_model.getInfo(token, function(result) {
+		if (result == null) 
+			res.sendStatus(404);
+		else {
+			team_model.checkTeam(teamId, function(result) {
+				if (result == 0)
+					res.sendStatus(404);
+				else {
+					team_model.getTeam(teamId, token, function(result) {
+						if (result == null)
+							res.sendStatus(401);
+						else {
+							team_model.getMembers(teamId, function(result) {
+								res.send(result);
+							});
+						}
+					});
+				}
+			});
+		}
+	});
+})
 .post(function(req, res, next) {
 	var teamId = req.params.id,
 		token = req.body['token'],
@@ -88,8 +113,15 @@ router.route('/:id/member')
 						if (result == null)
 							res.sendStatus(401);
 						else {
-							team_model.addMember(teamId, memberId);
-							res.sendStatus(200);
+							team_model.checkMember(teamId, memberId, function(result) {
+								if (result == 1)
+									res.sendStatus(400);
+								else {
+									team_model.addMember(teamId, memberId);
+									res.sendStatus(200);		
+								}
+							});
+							
 						}
 					});
 				}
