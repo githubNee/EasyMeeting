@@ -29,7 +29,7 @@ router.route('/')
 		user['token'] = token;
 
 		user_model.check(user.email, function(result) {
-			if(result == 1) {
+			if(result != null) {
 				res.sendStatus(401);
 			} else {
 				user_model.insert(user, function(result) {
@@ -82,17 +82,17 @@ router.route('/exists')
 
 	if (email == undefined) {
 		res.sendStatus(400);
+	} else {
+		user_model.check(email, function(result) {
+			if(result != null) {
+				res.send(result);
+			} else if (result == 0){
+				res.sendStatus(404);
+			} else {
+				res.sendStatus(500);
+			}
+		});
 	}
-
-	user_model.check(email, function(result) {
-		if(result == 1) {
-			res.sendStatus(200);
-		} else if (result == 0){
-			res.sendStatus(404);
-		} else {
-			res.sendStatus(500);
-		}
-	});
 });
 
 

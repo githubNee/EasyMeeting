@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<video id="video"></video>
+</body>
+<script type="text/javascript">
+    // Prefer camera resolution nearest to 1280x720.
+    var constraints = { video: { mediaSource:"screen",width: 1920, height: 1080 } };
+    var p = navigator.mediaDevices.getUserMedia(constraints);
+        p.then(function(mediaStream) {
+            var video = document.querySelector('video');
+            video.srcObject = mediaStream;
+            video.onloadedmetadata = function(e) {
+                video.play();
+            };
+        })
+        .catch(function(err) { console.log(err.name + ": " + err.message); }); // always check for errors at the end.
+</script>
+</html>

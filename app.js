@@ -39,6 +39,8 @@ app.use('/api/session', session);
 var account_info = require('./routes/account_info');
 app.use('/api/userinfo', account_info);
 
+var team = require('./routes/team');
+app.use('/api/team', team);
 
 
 

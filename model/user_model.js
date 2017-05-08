@@ -53,9 +53,9 @@ function getInfo(token, callback) {
 
 // 查询email是否被注册
 function check(email, callback) {
-	var sql = "select count(*) as number from user where email=\'" + email + '\'';
+	var sql = "select user_id from user where email=\'" + email + '\'';
 	db.do_query(sql, function(result) {
-		callback(result[0]['number']);
+		callback(result[0]);
 	});
 }
 
