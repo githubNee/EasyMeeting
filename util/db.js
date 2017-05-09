@@ -6,6 +6,7 @@ var connection = {};
 connection.do_query = function(sql, callback) {
 	connection = mysql.createConnection({
 	    host: '123.206.123.213',
+	    // host: '127.0.0.1',
 	    user: 'meeting',
 	    password: 'meeting',
 	    database:'meeting'
@@ -14,8 +15,7 @@ connection.do_query = function(sql, callback) {
 	connection.connect();
 	connection.query(sql, function(err, result) {
 		if(err) {
-			console.log(err);
-			return ;
+			callback(null);
 		}
 		callback(result);
 	});
