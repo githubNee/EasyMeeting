@@ -34,7 +34,7 @@ router.route('/')
 			if (result == null)
 				res.sendStatus(404);
 			else {
-				team['leader'] = result['user ']['user_id'];
+				team['leader'] = result['user']['user_id'];
 				team_model.insert(team);
 				res.sendStatus(200);
 			}
