@@ -15,7 +15,6 @@ router.route('/')
 			res.sendStatus(404);
 		else {
 			var userId = result['user']['user_id'];
-			console.log(userId);
 
 			team_model.getTeams(userId, function(result) {
 				res.send(result);

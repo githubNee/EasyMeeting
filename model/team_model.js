@@ -26,14 +26,12 @@ function insert (team) {
 	db.do_query(sql, function(result) {
 		var teamId = result['insertId'];
 		sql = 'insert into user_team values(null, ' + team['leader'] + ', ' + teamId + ');';
-		console.log(sql);
 		db.do_query(sql, function() {} );
 	});
 }
 
 function getTeams(userId, callback) {
 	var sql = 'select * from team where team_id in (select team_id from user_team where user_id = ' + userId + ');';
-	console.log(sql);
 	db.do_query(sql, function(result) {
 		callback(result);
 	});
@@ -42,7 +40,6 @@ function getTeams(userId, callback) {
 function checkTeam(teamId, callback) {
 	var sql = 'select count(*) as number from team where team_id = ' + teamId;
 	db.do_query(sql, function(result) {
-		console.log(result);
 		callback(result[0]['number']);
 	})
 }

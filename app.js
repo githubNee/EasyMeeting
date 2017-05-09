@@ -37,6 +37,9 @@ app.use('/api/userinfo', account_info);
 var team = require('./routes/team');
 app.use('/api/team', team);
 
+var meeting = require('./routes/meeting');
+app.use('/api/team', meeting);
+
 
 
 
