@@ -2,6 +2,8 @@ var db = require('../util/db');
 
 
 function insert(teamId, meeting) {
+	if (meeting['name'] == undefined)
+		meeting['name'] = ''; 
 	if (meeting['end_time'] == undefined)
 		meeting['end_time'] = '';
 	if (meeting['color'] == undefined)
@@ -13,7 +15,7 @@ function insert(teamId, meeting) {
 	if (meeting['outline'] == undefined)
 		meeting['outline'] = '';
 
-	var sql = 'insert into meeting values(null, \'' + meeting['start_time'] + '\',\'' + meeting['end_time'] + '\',-1,\'' + meeting['color'] + '\', \'' + meeting['introduction'] + '\',\'' + meeting['outline'] + '\',' + teamId + ');';
+	var sql = 'insert into meeting values(null, \'' + meeting['name'] + '\',\' + meeting['start_time'] + '\',\'' + meeting['end_time'] + '\',-1,\'' + meeting['color'] + '\', \'' + meeting['introduction'] + '\',\'' + meeting['outline'] + '\',' + teamId + ');';
 	db.do_query(sql, function() {});
 }
 
