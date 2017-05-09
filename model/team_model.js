@@ -50,7 +50,7 @@ function getTeam(teamId, token, callback) {
 	var sql = 'select * from team where team_id = (select team_id from user_team where team_id = ' + teamId;
 	sql += ' and user_id = (select user_id from user where token = \'' + token + '\'));';
 	db.do_query(sql ,function(result) {
-		callback(result);
+		callback(result[0]);
 	});
 }
 

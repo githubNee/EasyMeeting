@@ -44,7 +44,6 @@ function getInfo(token, callback) {
 			callback(null);
 		else {
 			result[0]['password'] = undefined;
-			result[0]['token'] = undefined;
 			var ret = {};
 			ret['user'] = result[0];
 			callback(ret);

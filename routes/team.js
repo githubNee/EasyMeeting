@@ -17,8 +17,7 @@ router.route('/')
 			var userId = result['user']['user_id'];
 
 			team_model.getTeams(userId, function(result) {
-				// user_model.getInfo(userId,)
-				res.send(200);
+				res.send(result);
 			});
 		} 
 	});
