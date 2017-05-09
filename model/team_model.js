@@ -32,7 +32,8 @@ function insert (team) {
 }
 
 function getTeams(userId, callback) {
-	var sql = 'select * from team where team_id = (select team_id from user_team where user_id = ' + userId + ');';
+	var sql = 'select * from team where team_id in (select team_id from user_team where user_id = ' + userId + ');';
+	console.log(sql);
 	db.do_query(sql, function(result) {
 		callback(result);
 	});
