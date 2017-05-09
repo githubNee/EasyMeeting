@@ -6,8 +6,12 @@ var path = require('path');
 var port = process.env.PORT || 3000;
 server.listen(port);
 var request = require('request');
-var bodyParser = require('body-parser');	
-
+var bodyParser = require('body-parser');
+var ejs = require('ejs');
+// view engine setup
+app.set('views', path.join(__dirname, 'views'));
+app.engine('.html', ejs.__express);
+app.set('view engine', 'html');
 
 // 跨域访问
 app.use(express.static(path.join(__dirname, 'public')));
@@ -35,13 +39,15 @@ var session = require('./routes/session');
 app.use('/api/session', session);
 
 
-
+app.get('/enterMeeting', function(req, res, next) {
+    res.render('index', { title: 'Express' });
+});
 
 
 
 app.use((req,res,next)=>{
-    res.send("404 not found");
-})
+    res.send("自己写的404 not found");
+});
 
 SkyRTC.rtc.on('new_connect', function(socket) {
     console.log('创建新连接');
