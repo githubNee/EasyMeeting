@@ -15,8 +15,9 @@ function insert(teamId, meeting) {
 	if (meeting['outline'] == undefined)
 		meeting['outline'] = '';
 
-	var sql = 'insert into meeting values(null, \'' + meeting['name'] + '\',\' + meeting['start_time'] + '\',\'' + meeting['end_time'] + '\',-1,\'' + meeting['color'] + '\', \'' + meeting['introduction'] + '\',\'' + meeting['outline'] + '\',' + teamId + ');';
-	db.do_query(sql, function() {});
+	var sql = 'insert into meeting values(null, \'' + meeting['name'] + '\',\'' + meeting['start_time'] + '\',\'' + meeting['end_time'] + '\',-1,\'' + meeting['color'] + '\', \'' + meeting['introduction'] + '\',\'' + meeting['outline'] + '\',' + teamId + ');';
+	console.log(sql);
+	// db.do_query(sql, function() {});
 }
 
 function getMeetings(teamId, callback) {
