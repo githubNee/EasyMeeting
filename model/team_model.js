@@ -33,11 +33,11 @@ function insert (team) {
 function getTeams(userId, callback) {
 	var sql = 'select * from (' + 
 		'select min(start_time) as next_time, team_id from meeting '+
-	    'where team_id in (select team_id from user_team where user_id = 14) and (state = 0 or state = -1)' +
+	    'where team_id in (select team_id from user_team where user_id = ' + userId + ') and (state = 0 or state = -1)' +
 	    'group by team_id' +
 		')a ' +
 		'right outer join (' +
-		'select * from team where team_id in (select team_id from user_team where user_id = 14)' +
+		'select * from team where team_id in (select team_id from user_team where user_id = ' + userId + ')' +
 		')b '+
 		'on a.team_id = b.team_id';
 
