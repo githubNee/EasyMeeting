@@ -7,7 +7,7 @@ var SkyRTC = function() {
     var moz = !!navigator.mozGetUserMedia;
     var iceServer = {
         "iceServers": [{
-            "url": "stun:stun.l.google.com:19302"
+            "urls": "stun:stun.ideasip.com"
         }]
     };
     var packetSize = 1000;
@@ -193,6 +193,7 @@ var SkyRTC = function() {
     skyrtc.prototype.createStream = function(options) {
         var that = this;
         getUserMedia = navigator.mediaDevices.getUserMedia(options);
+        console.log(getUserMedia);
         if(getUserMedia) {
             this.numStreams++;
             getUserMedia.then(function (stream) {
@@ -219,13 +220,13 @@ var SkyRTC = function() {
     //将流绑定到video标签上用于输出
     skyrtc.prototype.attachStream = function(stream, domId) {
         var element = document.getElementById(domId);
-        if (navigator.mozGetUserMedia) {
-            element.mozSrcObject = stream;
+        if (navigator.mediaDevices.getUserMedia) {
+            element.src = URL.createObjectURL(stream);
             element.play();
         } else {
             element.src = webkitURL.createObjectURL(stream);
         }
-        element.src = webkitURL.createObjectURL(stream);
+        //element.src = webkitURL.createObjectURL(stream);
     };
 
 
@@ -323,7 +324,7 @@ var SkyRTC = function() {
             that.emit("pc_opened", socketId, pc);
         };
 
-        pc.onaddstream = function(evt) {
+        pc.ontrack = function(evt) {
             that.emit('pc_add_stream', evt.stream, socketId, pc);
         };
 

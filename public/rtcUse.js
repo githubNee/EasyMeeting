@@ -91,14 +91,14 @@ rtc.on('receive_file_ask', function(sendId, socketId, fileName, fileSize){
 rtc.on("connected", function(socket) {
     //创建本地视频流
     rtc.createStream({
-        video: { width: 1920, height: 1080 },
-        audio: true
+        video: { mediaSource:"screen", width: 1920, height: 1080 }
     });
 });
 //创建本地视频流成功
 rtc.on("stream_created", function(stream) {
-    document.getElementById('me').src = URL.createObjectURL(stream);
-    document.getElementById('me').play();
+    rtc.attachStream(stream, 'me');
+    //document.getElementById('me').src = URL.createObjectURL(stream);
+    //document.getElementById('me').play();
 });
 //创建本地视频流失败
 rtc.on("stream_create_error", function() {
@@ -123,11 +123,12 @@ rtc.on('remove_peer', function(socketId) {
 });
 //接收到文字信息
 rtc.on('data_channel_message', function(channel, socketId, message){
+    console.log(1);
     var p = document.createElement("p");
     p.innerText = socketId + ": " + message;
     msgs.appendChild(p);
 });
 var room = 1;
 //连接WebSocket服务器
-rtc.connect("ws:" + window.location.href.substring(window.location.protocol.length).split('#')[0], room);
+rtc.connect("wss:" + window.location.href.substring(window.location.protocol.length).split('#')[0], room);
 //rtc.connect("ws://localhost:3000", room);
