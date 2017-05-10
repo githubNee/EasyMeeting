@@ -3,7 +3,7 @@ var app = express();
 var server = require('http').createServer(app);
 
 var path = require('path');
-var port = process.env.PORT || 3003;
+var port = process.env.PORT || 3000;
 server.listen(port);
 var request = require('request');
 var bodyParser = require('body-parser');	
