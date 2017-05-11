@@ -65,7 +65,7 @@ function getTeam(teamId, token, callback) {
 function addMember(teamId, memberIds) {
 	var closure = (teamId, memberId) => result => {
 		if (result[0]['number'] == 0) {
-			var sql = 'insert into user_team values(null, ' + teamId + ', ' + memberId + ');';
+			var sql = 'insert into user_team values(null, ' + memberId + ', ' + teamId + ');';
 			db.do_query(sql, function() {});
 		}
 	}
