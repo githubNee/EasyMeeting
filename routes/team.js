@@ -99,7 +99,7 @@ router.route('/:id/member')
 .post(function(req, res, next) {
 	var teamId = req.params.id,
 		token = req.body['token'],
-		memberId = req.body['memberId'];
+		memberIds = req.body['memberId'];
 	user_model.getInfo(token, function(result) {
 		if (result == null)
 			res.sendStatus(404);
@@ -112,15 +112,8 @@ router.route('/:id/member')
 						if (result == null)
 							res.sendStatus(401);
 						else {
-							team_model.checkMember(teamId, memberId, function(result) {
-								if (result == 1)
-									res.sendStatus(400);
-								else {
-									team_model.addMember(teamId, memberId);
-									res.sendStatus(200);		
-								}
-							});
-							
+							team_model.addMember(teamId, memberIds);
+							res.sendStatus(200);		
 						}
 					});
 				}

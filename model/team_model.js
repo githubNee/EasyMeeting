@@ -62,13 +62,23 @@ function getTeam(teamId, token, callback) {
 	});
 }
 
-function addMember(teamId, memberId) {
-	var sql = 'insert into user_team values(null, ' + teamId + ', ' + memberId + ');';
-	db.do_query(sql, function() {});
+function addMember(teamId, memberIds) {
+	var closure = (teamId, memberId) => result => {
+		if (result[0]['number'] == 0) {
+			var sql = 'insert into user_team values(null, ' + memberId + ', ' + teamId + ');';
+			db.do_query(sql, function() {});
+		}
+	}
+
+	for (var i = 0; i < memberIds.length; i++) {
+		var sql = 'select count(*) as number from user_team natural join user where team_id=' + teamId + ' and user_id=' + memberIds[i] + ';';
+		
+		db.do_query(sql, closure(teamId, memberIds[i]));
+	}	
 }
 
 function checkMember (teamId, memberId, callback) {
-	var sql = 'select count(*) as number from user_team where team_id=' + teamId + ' and user_id=' + memberId + ';';
+	var sql = 'select count(*) as number from user_team  natural join user where team_id=' + teamId + ' and user_id=' + memberId + ';';
 	db.do_query(sql, function(result) {
 		callback(result[0]['number']);
 	});
