@@ -55,11 +55,15 @@ sserver.listen(3001, function () {
 });
 var io = require('socket.io').listen(sserver);
 io.on('connection', function (socket) {
+    console.log(socket.id + "connect");
     socket.on('upload_success', function (data) {
+        console.log(1);
         io.emit("broadcast",data);
+        console.log(socket.id + "传来数据");
     });
     socket.on('disconnect', function () {
         io.emit('user disconnected',socket.id);
+        console.log(socket.id + "disconnect");
     });
  });
 // var SkyRTC = require('skyrtc').listen(sserver);
