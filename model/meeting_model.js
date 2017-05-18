@@ -27,8 +27,8 @@ function getMeetings(teamId, callback) {
 	})
 }
 
-function getMeeting(teamId, meetingId, callback) {
-	var sql = 'select * from meeting where team_id = ' + teamId + ' and meeting_id = ' + meetingId + ';';
+function getMeeting(meetingId, callback) {
+	var sql = 'select * from meeting where meeting_id = ' + meetingId + ';';
 	db.do_query(sql, function(result) {
 		callback(result[0]);
 	})
