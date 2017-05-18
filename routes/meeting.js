@@ -64,4 +64,37 @@ router.route('/:id/meeting')
 	}
 });
 
+router.route('/:id/meeting/:meetingId')
+.get(function(req, res, next) {
+	var teamId = req.params.id,
+		meetingId = req.params.meetingId,
+		token = req.query.token;
+	user_model.getInfo(token, function(result) {
+		if (result == null) {
+			res.sendStatus(404);
+		}
+		else {
+			team_model.checkTeam(teamId, function(result) {
+				if(result == 0)
+					res.sendStatus(404);
+				else {
+					team_model.getTeam(teamId, token, function(result) {
+						if (result == null) 
+							res.sendStatus(401);
+						else {
+							meeting_model.getMeeting(teamId, meetingId, function(result) {
+								if (result == 0)
+									res.sendStatus(404);
+								else 
+									res.send(result);								
+							});
+						}
+					});
+				}
+			});
+		}
+	});
+});
+
+
 module.exports = router;

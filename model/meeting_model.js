@@ -27,9 +27,17 @@ function getMeetings(teamId, callback) {
 	})
 }
 
+function getMeeting(teamId, meetingId, callback) {
+	var sql = 'select * from meeting where team_id = ' + teamId + ' and meeting_id = ' + meetingId + ';';
+	db.do_query(sql, function(result) {
+		callback(result[0]);
+	})
+}
+
 var meeting_model = {
 	insert: insert,
-	getMeetings: getMeetings
+	getMeetings: getMeetings,
+	getMeeting: getMeeting
 }
 
 module.exports = meeting_model;
