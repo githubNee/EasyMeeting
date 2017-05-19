@@ -36,7 +36,7 @@ router.route('/')
 			else {
 				team['leader'] = result['user']['user_id'];
 				team_model.insert(team);
-				res.sendStatus(200);
+				res.sendStatus(201);
 			}
 		});
 	}
@@ -46,27 +46,31 @@ router.route('/:id')
 .get(function(req, res, next) {
 	var teamId = req.params.id,
 		token = req.query['token'];
+	if (isNaN(parseInt(teamId))) 
+		res.sendStatus(400);
+	else  {
 
-	user_model.getInfo(token, function(result) {
-		if (result == null) {
-			console.log('user not found');
-			res.sendStatus(404);
-		}
-		else {
-			team_model.checkTeam(teamId, function(result) {
-				if (result == 0)
-					res.sendStatus(404);
-				else {
-					team_model.getTeam(teamId, token, function(result) {
-						if (result == null)
-							res.sendStatus(401);
-						else 
-							res.send(result);
-					});
-				}
-			})
-		}
-	});
+		user_model.getInfo(token, function(result) {
+			if (result == null) {
+				console.log('user not found');
+				res.sendStatus(404);
+			}
+			else {
+				team_model.checkTeam(teamId, function(result) {
+					if (result == 0)
+						res.sendStatus(404);
+					else {
+						team_model.getTeam(teamId, token, function(result) {
+							if (result == null)
+								res.sendStatus(401);
+							else 
+								res.send(result);
+						});
+					}
+				})
+			}
+		});
+	}
 });
 
 
