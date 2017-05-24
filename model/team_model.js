@@ -62,6 +62,15 @@ function getTeam(teamId, token, callback) {
 	});
 }
 
+function getTeamByLeader(teamId, token, callback) {
+	var sql = 'select * from team join user';
+	sql += ' on team.leader = user.user_id';
+	sql += ' where user.token = \''+ token + '\' and team_id = ' + teamId;
+	db.do_query(sql, function(result) {
+		callback(result[0]);
+	});
+}
+
 function addMember(teamId, memberIds) {
 	var closure = (teamId, memberId) => result => {
 		if (result[0]['number'] == 0) {
@@ -95,6 +104,14 @@ function getMembers (teamId, callback) {
 	})
 }
 
+function deleteMember (teamId, memberId, callback) {
+	var sql = 'delete from user_team where team_id = ' + teamId + ' and user_id = ' + memberId;
+	console.log(sql);
+	db.do_query(sql, function(result) {
+		callback(result);
+	});
+}
+
 var team_model = {
 	create: create,
 	insert: insert,
@@ -103,7 +120,9 @@ var team_model = {
 	getTeams: getTeams,
 	addMember: addMember,
 	checkMember: checkMember,
-	getMembers: getMembers
+	getMembers: getMembers,
+	getTeamByLeader: getTeamByLeader,
+	deleteMember: deleteMember
 }
 
 module.exports = team_model;

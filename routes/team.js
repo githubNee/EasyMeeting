@@ -126,4 +126,36 @@ router.route('/:id/member')
 	});
 });
 
+router.route('/:id/member/:memberId')
+.delete(function(req, res, next) {
+	var teamId = req.params.id,
+		memberId = req.params.memberId,
+		token = req.body['token'];
+	user_model.getInfo(token, function(result) {
+		if(result == null) 
+			res.sendStatus(404);
+		else {
+			team_model.checkTeam(teamId, function (result) {
+				if(result == 0)
+					res.sendStatus(404);
+				else {
+					team_model.getTeamByLeader(teamId, token, function(result) {
+						if (result == null)
+							res.sendStatus(401);
+						else {
+							team_model.deleteMember(teamId, memberId, function(result) {
+								console.log(result);
+								if (result['affectedRows'] == 0)
+									res.sendStatus(400);
+								else
+									res.sendStatus(200);
+							});
+						}
+					});
+				}
+			})
+		}
+	});
+});
+
 module.exports = router;
