@@ -1,7 +1,7 @@
 /*
  * Simple signaling channel for WebRTC (use with channel_server.js).
  */
-var path = "http://localhost:3000/openwebrtc";//这里改为服务器地址
+var path = "http://123.206.123.213:3000/openwebrtc";//这里改为服务器地址
 function SignalingChannel(sessionId) {
     if (!sessionId)
         sessionId = "123";

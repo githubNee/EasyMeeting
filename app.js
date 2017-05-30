@@ -232,7 +232,7 @@ function requestListener(request, response) {
 }
 
 app.use('/openwebrtc',requestListener);
-app.get('/test', function(req, res, next) {
+app.use('/test', function(req, res, next) {
     res.sendFile('public/client/webrtc_example.html', {root: __dirname});
 });
 
