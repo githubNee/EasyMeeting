@@ -53,7 +53,7 @@ function getInfo(token, callback) {
 
 // 查询email是否被注册
 function check(email, callback) {
-	var sql = "select user_id from user where email=\'" + email + '\'';
+	var sql = "select user.user_id, user_info.username from user natural join user_info where user.email =  \'" + email + '\'';
 	db.do_query(sql, function(result) {
 		callback(result[0]);
 	});
