@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+    <head>
+        <title>OpenWebRTC Demo</title>
+        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
+        <link rel="stylesheet" type="text/css" href="/client/main.css">
+        <script src="/client/signaling_channel.js"></script>
+        <script src="/client/sdp.js"></script>
+        <script src="/client/main.js"></script><!---这几个js很关键要引进来----->
+    </head>
+    <body>
+        <header>
+            <div id="heading">
+                <h2>Simple WebRTC Example</h2>
+            </div>
+            <div id="owr-logo"></div>
+        </header>
+        <section id="main-section">
+            <div id="settings-container">
+                <input class="btn" type="button" id="call_but" value="Call" disabled><br><!----这个button是发起视频的---->
+            </div>
+            <div id="video-container">
+                <video id="self_view" class="shadow owr-overlay-video" autoplay muted></video>
+                <video id="remote_view" class="shadow owr-overlay-video" autoplay></video>
+            </div><!----这个地方是放视频的---->
+            <div id="chat_div"></div>
+            <div id="chat-container">
+                <input type="sendtext" id="chat_txt" disable placeholder="Type here">
+                <input type="button" class="btn" id="chat_but" value="Send">
+            </div><!----这个地方是放聊天窗口的---->
+            <div id="log_div"></div>
+        </section>
+    <!--有一个关键的函数叫做joinFunc(session_id)，参数是房间的id，后端还没做，可以先写死，这个函数是加入房间，加入房间后才可以发起视频，我还没想好什么时候调用--->
+    <!--现在关闭会议和加入一个已经开始的会议还没有实现--->
+    </body>
+</html>

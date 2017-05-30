@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>会议屏幕共享Demo</title>
+    <style type="text/css">
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+        }
+
+        #videos {
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            right: 0;
+            overflow: auto;
+        }
+
+        #videos video {
+            display: inline-block;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+<div id="videos">
+    <video id="me" autoplay></video>
+</div>
+</body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.1/socket.io.js"></script>
+<script>
+    var path = "123.206.123.213:3001";
+    path = "localhost:3001";
+    var socket = io.connect(path);
+    var options = {video: { mediaSource:"screen", width: window.innerWidth, height: window.innerHeight }};
+    getUserMedia = navigator.mediaDevices.getUserMedia(options);
+    var canvas = document.createElement("canvas");
+    canvas.setAttribute("width",window.innerWidth);
+    canvas.setAttribute("height",window.innerHeight);
+    var ctx=canvas.getContext('2d');
+    if(getUserMedia) {
+        getUserMedia.then(function (stream) {
+            document.getElementById('me').src = URL.createObjectURL(stream);
+            document.getElementById('me').play();
+            window.setInterval(upload,10);
+        })
+    }
+    function upload() {
+        ctx.drawImage(document.getElementById('me'), 0, 0, window.innerWidth, window.innerHeight);
+        socket.emit("upload_success",{
+            data:canvas.toDataURL('image/png'),
+            id:socket.id
+        });
+    }
+</script>
+</html>

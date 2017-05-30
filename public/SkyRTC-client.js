@@ -7,8 +7,13 @@ var SkyRTC = function() {
     var moz = !!navigator.mozGetUserMedia;
     var iceServer = {
         "iceServers": [{
-            "urls": "stun:stun.ideasip.com"
-        }]
+            "urls": "stun:mmt-stun.verkstad.net"
+        },
+            {
+                "urls": "turn:mmt-turn.verkstad.net",
+                "username": "webrtc",
+                "credential": "secret"
+            }]
     };
     var packetSize = 1000;
 
