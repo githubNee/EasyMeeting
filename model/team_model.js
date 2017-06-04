@@ -30,17 +30,13 @@ function insert (team) {
 	});
 }
 
-function getTeams(userId, callback) {
-	var sql = 'select * from (' + 
-		'select min(start_time) as next_time, team_id from meeting '+
-	    'where team_id in (select team_id from user_team where user_id = ' + userId + ') and (state = 0 or state = -1)' +
-	    'group by team_id' +
-		')a ' +
-		'right outer join (' +
-		'select * from team where team_id in (select team_id from user_team where user_id = ' + userId + ')' +
-		')b '+
-		'on a.team_id = b.team_id';
-
+function getTeams(userId, time, callback) {
+	var sql = 'select b.team_id, b.name, b.create_date, b.description, b.leader, a.next_time from ( ' + 
+		'select min(start_time) as next_time, team_id from meeting ' +
+		'group by team_id having next_time>\'' + time + '\' ) a ' +
+		'right outer join ( ' +
+		'select * from user_team natural join team where user_id = ' + userId + ') b ' +
+		'on a.team_id = b.team_id;';
 
 	db.do_query(sql, function(result) {
 		callback(result);

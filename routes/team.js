@@ -11,12 +11,16 @@ router.route('/')
 	var token = req.query['token'];
 
 	user_model.getInfo(token, function(result) {
-		if (result == null)
+		if (result == null) {
+			console.log(token);
 			res.sendStatus(404);
+		}
 		else {
 			var userId = result['user']['user_id'];
 
-			team_model.getTeams(userId, function(result) {
+			var time = new Date();
+			var now = String(time.getFullYear()) + '-' + String(time.getMonth() + 1) + '-' + String(time.getDate());
+			team_model.getTeams(userId, now, function(result) {
 				res.send(result);
 			});
 		} 
