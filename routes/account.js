@@ -4,6 +4,7 @@ var router = express.Router();
 var request = require('request');
 var underscore = require('underscore');
 var user_model = require('../model/user_model');
+var meeting_model = require('../model/meeting_model');
 
 router.route('/')
 // 根据tokn获取用户信息 
@@ -95,5 +96,22 @@ router.route('/exists')
 	}
 });
 
+router.route('/meeting')
+.get(function(req, res, next) {
+	var token = req.query.token;
+
+	user_model.getInfo(token ,function (result) {
+		if (result == null) 
+			res.sendStatus(404);
+		else {
+			var user_id = result.user.user_id;
+			var time = new Date();
+			var now = String(time.getFullYear()) + '-' + String(time.getMonth() + 1) + '-' + String(time.getDate());
+			meeting_model.getPersonalMeetings(user_id, now, function(result) {
+				res.send(result);
+			});
+		}
+	});
+});
 
 module.exports = router;

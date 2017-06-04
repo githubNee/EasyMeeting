@@ -34,10 +34,22 @@ function getMeeting(meetingId, callback) {
 	})
 }
 
+function getPersonalMeetings(user_id, time, callback) {
+	var sql = 'select * from meeting where start_time>\'' + time + '\' and team_id in (' + 
+		'select team_id from user_team where user_id = ' + user_id  + 
+		') order by start_time';
+	console.log(sql);
+	db.do_query(sql, function(result) {
+		console.log(result);
+		callback(result);
+	})
+}
+
 var meeting_model = {
 	insert: insert,
 	getMeetings: getMeetings,
-	getMeeting: getMeeting
+	getMeeting: getMeeting,
+	getPersonalMeetings: getPersonalMeetings
 }
 
 module.exports = meeting_model;
