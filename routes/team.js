@@ -39,8 +39,12 @@ router.route('/')
 				res.sendStatus(404);
 			else {
 				team['leader'] = result['user']['user_id'];
-				team_model.insert(team);
-				res.sendStatus(201);
+				team_model.insert(team, function(result) {
+					team_model.getMaxTeamId (function(result) {
+						console.log(result);
+						res.status(201).send({team_id: result['team_id']})
+					});
+				});
 			}
 		});
 	}

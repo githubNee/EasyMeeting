@@ -18,7 +18,7 @@ function create (body) {
 	return team;
 }
 
-function insert (team) {
+function insert (team, callback) {
 	team['description'] = team['description'].replace("\'", "\\\'");
 	team['description'] = team['description'].replace("\"", "\\\"");
 	var sql = "insert into team(name, description, leader) values (\"" + team['name'] + "\", \"" + team['description'];
@@ -26,7 +26,9 @@ function insert (team) {
 	db.do_query(sql, function(result) {
 		var teamId = result['insertId'];
 		sql = 'insert into user_team values(null, ' + team['leader'] + ', ' + teamId + ');';
-		db.do_query(sql, function() {} );
+		db.do_query(sql, function(result) {
+			callback(result);
+		} );
 	});
 }
 
@@ -108,6 +110,13 @@ function deleteMember (teamId, memberId, callback) {
 	});
 }
 
+function getMaxTeamId (callback) {
+	var sql = "select max(team_id) as team_id from team";
+	db.do_query(sql, function(result) {
+		callback(result[0]);
+	})
+}
+
 var team_model = {
 	create: create,
 	insert: insert,
@@ -118,7 +127,8 @@ var team_model = {
 	checkMember: checkMember,
 	getMembers: getMembers,
 	getTeamByLeader: getTeamByLeader,
-	deleteMember: deleteMember
+	deleteMember: deleteMember,
+	getMaxTeamId: getMaxTeamId
 }
 
 module.exports = team_model;
