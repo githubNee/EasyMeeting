@@ -53,8 +53,14 @@ router.route('/:id/meeting')
 							if (result == null) 
 								res.sendStatus(401);
 							else {
-								meeting_model.insert(teamId, req.body);
-								res.sendStatus(201);
+								// meeting_model.insert(teamId, req.body, function (result) {
+								// 	console.log(result);
+								// 	res.send({result:result});
+								// });
+								meeting_model.insert(teamId, req.body, function(result) {
+									res.status(201).send({meeting_id: result.insertId})
+								});
+
 							}
 						});
 					}
