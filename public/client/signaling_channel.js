@@ -1,12 +1,12 @@
 /*
  * Simple signaling channel for WebRTC (use with channel_server.js).
  */
-var path = "http://123.206.123.213:3000/openwebrtc";//这里改为服务器地址
+var UserId;
 function SignalingChannel(sessionId) {
     if (!sessionId)
         sessionId = "123";
     userId = createId();
-
+UserId = userId;
     var channels = {};
 
     var listeners = {
@@ -21,7 +21,7 @@ function SignalingChannel(sessionId) {
         //这里获取用户id
     };
 
-    var es = new EventSource(path + "/stoc/" + sessionId + "/" + userId);
+    var es = new EventSource("/openwebrtc/stoc/" + sessionId + "/" + userId);
 
     es.onerror = function () {
         es.close();
@@ -34,7 +34,7 @@ function SignalingChannel(sessionId) {
         channels[peerUserId] = channel;
 
         es.addEventListener("user-" + peerUserId, userDataHandler, false);
-        fireEvent({ "type": "peer", "peer": channel }, listeners);
+        fireEvent({ "type": "peer", "peer": channel,"peerUserId":peerUserId }, listeners);
     }, false);
 
     function userDataHandler(evt) {
@@ -67,18 +67,18 @@ function SignalingChannel(sessionId) {
             Object.defineProperty(this, name, createEventListenerDescriptor(name, listeners));
 
         this.didGetData = function (data) {
-            fireEvent({"type": "message", "data": data }, listeners);
+            fireEvent({"type": "message", "data": data,"peerUserId":peerUserId }, listeners);
         };
 
         this.didLeave = function () {
-            fireEvent({"type": "disconnect" }, listeners);
+            fireEvent({"type": "disconnect","peerUserId":peerUserId }, listeners);
         };
 
         var sendQueue = [];
 
         function processSendQueue() {
             var xhr = new XMLHttpRequest();
-            xhr.open("POST", path + "/ctos/" + sessionId + "/" + userId + "/" + peerUserId);
+            xhr.open("POST", "/openwebrtc/ctos/" + sessionId + "/" + userId + "/" + peerUserId);
             xhr.setRequestHeader("Content-Type", "text/plain");
             xhr.send(sendQueue[0]);
             xhr.onreadystatechange = function () {

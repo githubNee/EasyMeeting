@@ -111,6 +111,7 @@ var SkyRTC = require('skyrtc').listen(sserver);
 
 
 var sessions = {};
+var users = {};
 var usersInSessionLimit = 3;
 
 var rtcport = process.env.PORT || 4000;
@@ -140,6 +141,7 @@ function requestListener(request, response) {
     if (parts[1] == "ctos" || parts[1] == "stoc") {
         var sessionId = parts[2];
         var userId = parts[3];
+        users[userId] = userId;
         if (!sessionId || !userId) {
             response.writeHead(400);
             response.end();
@@ -235,8 +237,31 @@ app.use('/openwebrtc',requestListener);
 app.use('/test', function(req, res, next) {
     res.sendFile('public/client/webrtc_example.html', {root: __dirname});
 });
+var peerLines = {};
+app.post('/call', function(req, res, next) {
+    var peerUserId = req.body.peerUserId;
+    var allPeers = users;
+    delete allPeers[peerUserId];
+    var allPeerArray = [];
+    for(var i in allPeers) {
+        if(allPeers.hasOwnProperty(i)) {
+            allPeerArray.push(i);
+        }
+    }
+    for(var j=0;j<allPeerArray.length;j++) {
+        var lines = [];
+        for(var k =j+1;k<allPeerArray.length;k++) {
+            lines.push(allPeerArray[k]);
+        }
+        peerLines[allPeerArray[j]]=lines;
+    }
+    res.send("yes");
+});
+app.post('/getPeer', function(req, res, next) {
+    res.send(peerLines[req.body.peerUserId]);
+});
 
-app.use((req,res,next)=>{
-    res.send("404 not found");
-})
+// app.use((req,res,next)=>{
+//     res.send("404 not found");
+// })
 

@@ -12,7 +12,7 @@ function insert(teamId, meeting, callback) {
 		meeting['introduction'] = '';
 	meeting['introduction'] = meeting['introduction'].replace("\'", "\\\'");
 	meeting['introduction'] = meeting['introduction'].replace("\"", "\\\"");	
-	if (meeting['outline'] == undefined)
+	if (meeting['outline'] === undefined)
 		meeting['outline'] = '';
 
 	var sql = 'insert into meeting values(null, \'' + meeting['name'] + '\',\'' + meeting['start_time'] + '\',\'' + meeting['end_time'] + '\', \'' + meeting['color'] + '\', \'' + meeting['introduction'] + '\',\'' + meeting['outline'] + '\',' + teamId + ');';

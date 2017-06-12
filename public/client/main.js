@@ -5,19 +5,21 @@ if (!window.RTCPeerConnection) {
 
 var selfView;
 var remoteView;
+var viewContainer;
 var callButton;
 var audioCheckBox;
 var videoCheckBox;
 var audioOnlyView;
 var signalingChannel;
-var pc;
-var peer;
+var pcs = {};
+var peers = {};
+var localDescCreateds = {};
 var localStream;
 var chatDiv;
 var chatText;
 var chatButton;
 var chatCheckBox;
-var channel;
+var channels = {};
 var sessionId = "123";
 
 if (!window.hasOwnProperty("orientation"))
@@ -37,7 +39,7 @@ var configuration = {
 };
 window.onload = function () {
     selfView = document.getElementById("self_view");
-    remoteView = document.getElementById("remote_view");
+    viewContainer = document.getElementById("video-container");
     callButton = document.getElementById("call_but");
     //var joinButton = document.getElementById("join_but");
     audioCheckBox = false;
@@ -60,26 +62,34 @@ window.onload = function () {
             //这里是会议室id
             var sessionId = sessionId;
             signalingChannel = new SignalingChannel(sessionId);
-
             callButton.onclick = function () {
-                start(true);
+                axios.post('http://100.64.7.190:3000/call',{
+                    peerUserId:UserId
+                })
+                    .then(function(res){
+
+                    })
+                    .catch(function(err){
+                        console.log(err);
+                    });
+                for(var i in peers) {
+                    if(peers.hasOwnProperty(i)) {
+                        start(true,i);
+                    }
+                }
             };
 
             // another peer has joined our session
             signalingChannel.onpeer = function (evt) {
-
                 callButton.disabled = false;
-
-
-                peer = evt.peer;
-                peer.onmessage = handleMessage;
-
-                peer.ondisconnect = function () {
+                peers[evt.peerUserId] = evt.peer;
+                peers[evt.peerUserId].onmessage = handleMessage;
+                peers[evt.peerUserId].ondisconnect = function (evt) {
                     callButton.disabled = true;
                     remoteView.style.visibility = "hidden";
-                    if (pc)
-                        pc.close();
-                    pc = null;
+                    if (pcs[evt.peerUserId])
+                        pcs[evt.peerUserId].close();
+                    delete pcs[evt.peerUserId];
                 };
             };
         }
@@ -114,17 +124,30 @@ window.onload = function () {
 function handleMessage(evt) {
     var message = JSON.parse(evt.data);
 
-    if (!pc && (message.sessionDescription || message.candidate))
-        start(false);
+    if (!pcs[evt.peerUserId] && (message.sessionDescription || message.candidate)) {
+        start(false, evt.peerUserId);
+        axios.post('http://100.64.7.190:3000/getPeer',{
+            peerUserId:UserId
+        })
+            .then(function(res){
+                for(var i=0;i< res.data.length;i++) {
+                    start(true, res.data[i]);
+                }
+            })
+            .catch(function(err){
+                console.log(err);
+            });
+    }
 
     if (message.sessionDescription) {
-        pc.setRemoteDescription(new RTCSessionDescription({
+        pcs[evt.peerUserId].setRemoteDescription(new RTCSessionDescription({
             "sdp": SDP.generate(message.sessionDescription),
             "type": message.type
         }), function () {
             // if we received an offer, we need to create an answer
-            if (pc.remoteDescription.type == "offer")
-                pc.createAnswer(localDescCreated, logError);
+            if (pcs[evt.peerUserId].remoteDescription.type == "offer") {
+                pcs[evt.peerUserId].createAnswer(localDescCreateds[evt.peerUserId], logError);
+            }
         }, logError);
     } else if (!isNaN(message.orientation) && remoteView) {
         var transform = "rotate(" + message.orientation + "deg)";
@@ -144,21 +167,21 @@ function handleMessage(evt) {
             d.relatedPort && ("rport " + d.relatedPort),
             d.tcpType && ("tcptype " + d.tcpType)
         ].filter(function (x) { return x; }).join(" ");
-        pc.addIceCandidate(new RTCIceCandidate(message.candidate), function () {}, logError);
+        pcs[evt.peerUserId].addIceCandidate(new RTCIceCandidate(message.candidate), function () {}, logError);
     }
 }
 
 // call start() to initiate
-function start(isInitiator) {
-    callButton.disabled = true;
-    pc = new RTCPeerConnection(configuration);
+function start(isInitiator,peerUserId) {
+    //callButton.disabled = true;
+    pcs[peerUserId] = new RTCPeerConnection(configuration);
 
     // send any ice candidates to the other peer
-    pc.onicecandidate = function (evt) {
+    pcs[peerUserId].onicecandidate = function (evt) {
         if (evt.candidate) {
             var s = SDP.parse("m=application 0 NONE\r\na=" + evt.candidate.candidate + "\r\n");
             var candidateDescription = s.mediaDescriptions[0].ice.candidates[0];
-            peer.send(JSON.stringify({
+            peers[peerUserId].send(JSON.stringify({
                 "candidate": {
                     "candidateDescription": candidateDescription,
                     "sdpMLineIndex": evt.candidate.sdpMLineIndex
@@ -171,18 +194,26 @@ function start(isInitiator) {
     // start the chat
     if (chatCheckBox) {
         if (isInitiator) {
-            channel = pc.createDataChannel("chat");
+            channels[peerUserId] = pcs[peerUserId].createDataChannel("chat");
             setupChat();
         } else {
-            pc.ondatachannel = function (evt) {
-                channel = evt.channel;
+            pcs[peerUserId].ondatachannel = function (evt) {
+                channels[peerUserId] = evt.channel;
                 setupChat();
             };
         }
     }
 
     // once the remote stream arrives, show it in the remote video element
-    pc.onaddstream = function (evt) {
+    pcs[peerUserId].onaddstream = function (evt) {
+        remoteView = document.getElementById("video-" + peerUserId);
+        if(remoteView == null) {
+            remoteView = document.createElement("video");
+            remoteView.setAttribute("class", "shadow owr-overlay-video");
+            remoteView.setAttribute("autoplay", "true");
+            remoteView.id = "video-" + peerUserId;
+            remoteView.parentNode = viewContainer;
+        }
         remoteView.srcObject = evt.stream;
         if (videoCheckBox)
             remoteView.style.visibility = "visible";
@@ -192,12 +223,23 @@ function start(isInitiator) {
     };
 
     if (audioCheckBox || videoCheckBox) {
-        pc.addStream(localStream);
+        pcs[peerUserId].addStream(localStream);
     }
-
-    if (isInitiator)
-        pc.createOffer(localDescCreated, logError);
-
+    localDescCreateds[peerUserId] = function localDescCreated(desc) {
+        pcs[peerUserId].setLocalDescription(desc, function () {
+            var sessionDescription = SDP.parse(pcs[peerUserId].localDescription.sdp);
+            peers[peerUserId].send(JSON.stringify({
+                "sessionDescription": sessionDescription,
+                "type": pcs[peerUserId].localDescription.type
+            }, null, 2));
+            var logMessage = "localDescription set and sent to peer, type: " + pcs[peerUserId].localDescription.type
+                + ", sessionDescription:\n" + JSON.stringify(sessionDescription, null, 2);
+            console.log(logMessage);
+        }, logError);
+    };
+    if (isInitiator) {
+        pcs[peerUserId].createOffer(localDescCreateds[peerUserId], logError);
+    }
 }
 
 function localDescCreated(desc) {
@@ -213,14 +255,16 @@ function localDescCreated(desc) {
     }, logError);
 }
 
-function sendOrientationUpdate() {
+function sendOrientationUpdate(peer) {
     peer.send(JSON.stringify({ "orientation": window.orientation + 90 }));
 }
 
 window.onorientationchange = function () {
-    if (peer)
-        sendOrientationUpdate();
-
+    for(var i in peers){
+        if (peers.hasOwnProperty(i)) { //filter,只输出man的私有属性
+            sendOrientationUpdate(peers[i]);
+        }
+    }
     if (selfView) {
         var transform = "rotate(" + (window.orientation + 90) + "deg)";
         selfView.style.transform = selfView.style.webkitTransform = transform;
@@ -245,48 +289,58 @@ function log(msg) {
 
 // setup chat
 function setupChat() {
-    channel.onopen = function () {
-        chatDiv.style.visibility = "visible";
-        chatText.style.visibility = "visible";
-        chatButton.style.visibility = "visible";
-        chatButton.disabled = false;
+    chatButton.onclick = function () {
+        if (chatText.value) {
 
-        //On enter press - send text message.
-        chatText.onkeyup = function(event) {
-            if (event.keyCode == 13) {
-                chatButton.click();
+            postChatMessage(chatText.value, true);
+            for(var k in channels) {
+                if(channels.hasOwnProperty(k))
+                channels[k].send(chatText.value);
             }
-        };
-
-        chatButton.onclick = function () {
-            if(chatText.value) {
-                postChatMessage(chatText.value, true);
-                channel.send(chatText.value);
-                chatText.value = "";
-                chatText.placeholder = "";
-            }
-        };
-    };
-
-    // recieve data from remote user
-    channel.onmessage = function (evt) {
-        postChatMessage(evt.data);
-    };
-
-    function postChatMessage(msg, author) {
-        var messageNode = document.createElement('div');
-        var messageContent = document.createElement('div');
-        messageNode.classList.add('chatMessage');
-        messageContent.textContent = msg;
-        messageNode.appendChild(messageContent);
-
-        if (author) {
-            messageNode.classList.add('selfMessage');
-        } else {
-            messageNode.classList.add('remoteMessage');
+            chatText.value = "";
+            chatText.placeholder = "";
         }
+    };
+    for(var i in channels) {
+        if (channels.hasOwnProperty(i)) {
+            peerUserId = i;
+            channels[peerUserId].onopen = function () {
+                chatDiv.style.visibility = "visible";
+                chatText.style.visibility = "visible";
+                chatButton.style.visibility = "visible";
+                chatButton.disabled = false;
 
-        chatDiv.appendChild(messageNode);
-        chatDiv.scrollTop = chatDiv.scrollHeight;
+                //On enter press - send text message.
+                chatText.onkeyup = function (event) {
+                    if (event.keyCode == 13) {
+                        chatButton.click();
+                    }
+                };
+
+
+            };
+
+            // recieve data from remote user
+            channels[peerUserId].onmessage = function (evt) {
+                postChatMessage(evt.data);
+            };
+
+            function postChatMessage(msg, author) {
+                var messageNode = document.createElement('div');
+                var messageContent = document.createElement('div');
+                messageNode.classList.add('chatMessage');
+                messageContent.textContent = msg;
+                messageNode.appendChild(messageContent);
+
+                if (author) {
+                    messageNode.classList.add('selfMessage');
+                } else {
+                    messageNode.classList.add('remoteMessage');
+                }
+
+                chatDiv.appendChild(messageNode);
+                chatDiv.scrollTop = chatDiv.scrollHeight;
+            }
+        }
     }
 }
