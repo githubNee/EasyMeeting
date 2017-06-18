@@ -239,7 +239,9 @@ app.use('/test', function(req, res, next) {
 });
 var peerLines = {};
 app.post('/call', function(req, res, next) {
+
     var peerUserId = req.body.peerUserId;
+    console.log(peerUserId + "call success");
     var allPeers = users;
     delete allPeers[peerUserId];
     var allPeerArray = [];
@@ -257,10 +259,21 @@ app.post('/call', function(req, res, next) {
     }
     res.send("yes");
 });
+
+var meetingState = {};
 app.post('/getPeer', function(req, res, next) {
+    console.log(req.body.peerUserId + "get success");
     res.send(peerLines[req.body.peerUserId]);
 });
 
+app.post('/login',function (req,res) {
+   console.log(req.body);
+   res.send(req.body);
+});
+
+app.get('/',function (req,res) {
+    res.send("nyw是xxx");
+});
 // app.use((req,res,next)=>{
 //     res.send("404 not found");
 // })

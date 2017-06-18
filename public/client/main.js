@@ -43,7 +43,7 @@ window.onload = function () {
     callButton = document.getElementById("call_but");
     //var joinButton = document.getElementById("join_but");
     audioCheckBox = false;
-    videoCheckBox = false;
+    videoCheckBox = true;
     audioOnlyView = document.getElementById("audio-only-container");
     chatText = document.getElementById("chat_txt");
     chatButton = document.getElementById("chat_but");
@@ -63,7 +63,7 @@ window.onload = function () {
             var sessionId = sessionId;
             signalingChannel = new SignalingChannel(sessionId);
             callButton.onclick = function () {
-                axios.post('http://100.64.7.190:3000/call',{
+                axios.post('http://100.64.18.85:3000/call',{
                     peerUserId:UserId
                 })
                     .then(function(res){
@@ -86,7 +86,7 @@ window.onload = function () {
                 peers[evt.peerUserId].onmessage = handleMessage;
                 peers[evt.peerUserId].ondisconnect = function (evt) {
                     callButton.disabled = true;
-                    remoteView.style.visibility = "hidden";
+                    //remoteView.style.visibility = "hidden";
                     if (pcs[evt.peerUserId])
                         pcs[evt.peerUserId].close();
                     delete pcs[evt.peerUserId];
@@ -126,7 +126,7 @@ function handleMessage(evt) {
 
     if (!pcs[evt.peerUserId] && (message.sessionDescription || message.candidate)) {
         start(false, evt.peerUserId);
-        axios.post('http://100.64.7.190:3000/getPeer',{
+        axios.post('http://100.64.18.85:3000/getPeer',{
             peerUserId:UserId
         })
             .then(function(res){
@@ -149,9 +149,9 @@ function handleMessage(evt) {
                 pcs[evt.peerUserId].createAnswer(localDescCreateds[evt.peerUserId], logError);
             }
         }, logError);
-    } else if (!isNaN(message.orientation) && remoteView) {
-        var transform = "rotate(" + message.orientation + "deg)";
-        remoteView.style.transform = remoteView.style.webkitTransform = transform;
+    } else if (!isNaN(message.orientation) ) {
+        //var transform = "rotate(" + message.orientation + "deg)";
+        //remoteView.style.transform = remoteView.style.webkitTransform = transform;
     } else {
         var d = message.candidate.candidateDescription;
         message.candidate.candidate = "candidate:" + [
@@ -207,19 +207,19 @@ function start(isInitiator,peerUserId) {
     // once the remote stream arrives, show it in the remote video element
     pcs[peerUserId].onaddstream = function (evt) {
         remoteView = document.getElementById("video-" + peerUserId);
-        if(remoteView == null) {
+        if(remoteView === null) {
             remoteView = document.createElement("video");
             remoteView.setAttribute("class", "shadow owr-overlay-video");
             remoteView.setAttribute("autoplay", "true");
             remoteView.id = "video-" + peerUserId;
-            remoteView.parentNode = viewContainer;
+            viewContainer.appendChild(remoteView);
         }
         remoteView.srcObject = evt.stream;
         if (videoCheckBox)
             remoteView.style.visibility = "visible";
         else if (audioCheckBox && !(chatCheckBox))
             audioOnlyView.style.visibility = "visible";
-        sendOrientationUpdate();
+        sendOrientationUpdate(peers[peerUserId]);
     };
 
     if (audioCheckBox || videoCheckBox) {
